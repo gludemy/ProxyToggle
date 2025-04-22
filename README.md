@@ -1,5 +1,9 @@
 ![](proxytoggle.png)
 
+# Usage
+
+**One-click toggle: just click on the red/green circle to toggle on/off proxy**
+
 # Windows Proxy Toggle Tool
 
 A lightweight system tray utility that lets you toggle Windows proxy settings with a single click. Never navigate through multiple settings screens again!
