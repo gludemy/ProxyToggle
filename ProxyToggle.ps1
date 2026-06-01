@@ -4,7 +4,10 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# Proxy Settings
+# Settings file
+$settingsPath = "$env:APPDATA\ProxyToggle\settings.json"
+
+# Default proxy settings
 $proxyServer = "10.147.17.29"
 $proxyPort = "808"
 $proxyAddress = "$proxyServer`:$proxyPort"
@@ -12,6 +15,32 @@ $proxyExceptions = "localhost;127.0.0.1;<local>"
 
 # Registry paths
 $internetSettingsPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+
+function Load-Settings {
+    if (Test-Path $settingsPath) {
+        try {
+            $json = Get-Content $settingsPath -Raw | ConvertFrom-Json
+            $script:proxyServer     = $json.proxyServer
+            $script:proxyPort       = $json.proxyPort
+            $script:proxyExceptions = $json.proxyExceptions
+            $script:proxyAddress    = "$($script:proxyServer)`:$($script:proxyPort)"
+        } catch {
+            # Corrupt/missing fields — keep defaults
+        }
+    }
+}
+
+function Save-Settings {
+    $dir = Split-Path $settingsPath
+    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+    @{
+        proxyServer     = $script:proxyServer
+        proxyPort       = $script:proxyPort
+        proxyExceptions = $script:proxyExceptions
+    } | ConvertTo-Json | Set-Content $settingsPath -Encoding UTF8
+}
+
+Load-Settings
 
 # Create context menu
 $contextMenu = New-Object System.Windows.Forms.ContextMenuStrip
@@ -184,9 +213,10 @@ $settingsMenuItem.Add_Click({
     $buttonSave.Add_Click({
         $script:proxyServer = $textBoxServer.Text
         $script:proxyPort = $textBoxPort.Text
-        $script:proxyAddress = "$proxyServer`:$proxyPort"
+        $script:proxyAddress = "$($script:proxyServer)`:$($script:proxyPort)"
         $script:proxyExceptions = $textBoxExceptions.Text
-        
+        Save-Settings
+
         if (Get-ProxyStatus) {
             # Update current proxy if it's enabled
             Set-ItemProperty -Path $internetSettingsPath -Name "ProxyServer" -Value $proxyAddress
