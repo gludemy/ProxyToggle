@@ -36,3 +36,7 @@ For those who want to customize or build from source, the complete PowerShell sc
 4. Run the following command: 
 `Invoke-ps2exe -InputFile ProxyToggle.ps1 -OutputFile ProxyToggle.exe -IconFile ProxyToggle.ico -NoConsole -NoOutput -NoError`
 5. The ProxyToggle.exe will be generated in your folder
+
+Alternatively, run the included `build.ps1` script (as administrator) — it installs ps2exe automatically if needed and runs the build in one step.
+
+> ps2exe is an open-source tool by [MScholtes](https://github.com/MScholtes/PS2EXE) that compiles PowerShell scripts into standalone Windows executables.
